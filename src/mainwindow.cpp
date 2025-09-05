@@ -6,10 +6,20 @@
 #include <QWidget>
 #include <QDebug>
 
+// ha van ConfigManager::load(), meghívjuk; ha nincs, nem baj
+#include <concepts>
+template <class T>
+concept HasLoad = requires(T t) { { t.load() }; };
+template <class T>
+static inline void maybe_call_load(T& t) {
+    if constexpr (HasLoad<T>) t.load();
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    cfg_.load(); // ha máshogy hívod, cseréld erre az egy sorra
+    // cfg_.load();  // -> helyette:
+    maybe_call_load(cfg_);
 
     buildUi();
 
@@ -54,8 +64,7 @@ void MainWindow::buildUi() {
             return;
         }
 
-        // A te headeredhez igazítva – ez az 5 paraméteres verzió:
-        // void addPosition(const QString&, double, double, double, double);
+        // 5 paraméteres addPosition-hoz igazítva
         demo_.addPosition(sym, entry, amount, tp, sl);
         qDebug() << "[Added]" << sym << entry << amount << tp << sl;
     });
