@@ -6,6 +6,9 @@ add_rules("mode.debug", "mode.release")
 -- IXWebSocket TLS: mbedTLS (nem OpenSSL, így nincs perl/windres szívás)
 add_requires("ixwebsocket", {configs = {ssl = "mbedtls"}})
 
+-- cURL: Windows-on Schannel (nincs OpenSSL build)
+add_requires("libcurl", {configs = {with_ssl = "schannel"}})
+
 -- Opcionális: ha tényleg használod
 add_requires("nlohmann_json", {optional = true})
 
@@ -25,7 +28,7 @@ target("unknown")
         add_files("resources/**.qrc")
     end
 
-    add_packages("ixwebsocket")
+    add_packages("ixwebsocket", "libcurl")
     if has_package("nlohmann_json") then
         add_packages("nlohmann_json")
     end
