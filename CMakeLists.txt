@@ -1,27 +1,29 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.16)
 project(CryptoBot LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Qt automatikák
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+# Preferáld a CONFIG csomagokat (vcpkg)
+set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
+
+# MSVC barát opciók
 if (MSVC)
   add_compile_options(/permissive- /Zc:preprocessor /utf-8)
 endif()
 
-# ---- Könyvtárak (CONFIG mód) ----
-find_package(Qt6 6.5 COMPONENTS Widgets Network REQUIRED)
+# ---- Csomagok (CONFIG mód) ----
+find_package(Qt6 COMPONENTS Widgets Network REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-# CURL: próbáljuk CONFIG-ot, ha nincs, fallback a FindCURL-re
-find_package(CURL CONFIG QUIET)
-if (NOT CURL_FOUND)
-  find_package(CURL REQUIRED) # adja: CURL::libcurl
-endif()
+# CURL: vcpkg CONFIG csomag kötelező
+find_package(CURL CONFIG REQUIRED) # adja: CURL::libcurl
 
 # ixwebsocket: először CONFIG (vcpkg), ha nincs, FetchContent fallback
 include(FetchContent)
@@ -34,14 +36,13 @@ elseif (TARGET ixWebSocket::ixWebSocket)
   set(IXWS_TARGET ixWebSocket::ixWebSocket)
 else()
   message(STATUS "ixwebsocket CMake config nem található – forrásból építjük (FetchContent).")
-  # Stabil tagot tegyél ide, ha szeretnéd (pl. v11.5.x); default: master/main
-  FetchContent_Declare(ixwebsocket
+  FetchContent_Declare(ixwebsocket_src
     GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
     GIT_TAG        master
   )
   set(IXWEBSOCKET_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-  set(IXWEBSOCKET_USE_TLS      OFF CACHE BOOL "" FORCE) # állítsd ON-ra, ha kell OpenSSL
-  FetchContent_MakeAvailable(ixwebsocket)
+  set(IXWEBSOCKET_USE_TLS      OFF CACHE BOOL "" FORCE) # Ha kell TLS, állítsd ON-ra és tegyél OpenSSL-t vcpkg-ből.
+  FetchContent_MakeAvailable(ixwebsocket_src)
 
   if (TARGET ixwebsocket::ixwebsocket)
     set(IXWS_TARGET ixwebsocket::ixwebsocket)
@@ -74,6 +75,7 @@ target_link_libraries(CryptoBot PRIVATE
 
 target_compile_definitions(CryptoBot PRIVATE QT_DEPRECATED_WARNINGS)
 
+# Release-ben ne nyisson külön konzol ablakot Windows alatt (opcionális)
 if (WIN32 AND CMAKE_BUILD_TYPE MATCHES "Release")
   set_target_properties(CryptoBot PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
