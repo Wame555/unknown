@@ -6,7 +6,7 @@ add_rules("mode.debug", "mode.release")
 -- ezt már beállítottuk: xmake g --qt="C:/Qt/6.9.2/mingw_64"
 
 -- WebSocket: Xmake kezeli/letölti
-add_requires("ixwebsocket", {configs = {ssl = true}})
+add_requires("ixwebsocket", {configs = {ssl = "openssl"}})
 
 -- (opcionális) JSON, ha használod a kódban
 add_requires("nlohmann_json", {optional = true})
