@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QStringList>
 
-// Kis segédfüggvény: QString -> std::string (UTF-8)
+// QString -> std::string (UTF-8)
 static inline std::string qstr(const QString& s) {
     const QByteArray u = s.toUtf8();
     return std::string(u.constData(), static_cast<size_t>(u.size()));
@@ -17,14 +17,11 @@ BinanceWebsocket::BinanceWebsocket(QObject* parent) : QObject(parent) {
             auto data = nlohmann::json::parse(msg->str);
 
             // "btcusdt@ticker" -> "BTCUSDT"
-            QString symbol = QString::fromStdString(
-                                 data["stream"].get<std::string>())
-                                 .split('@')
-                                 .first()
-                                 .toUpper();
+            const auto streamStd = data["stream"].get<std::string>();
+            const QString symbol =
+                QString::fromStdString(streamStd).split('@').first().toUpper();
 
-            // Ár
-            double price = std::stod(data["data"]["c"].get<std::string>());
+            const double price = std::stod(data["data"]["c"].get<std::string>());
 
             emit priceUpdated(symbol, price);
         } catch (const std::exception& e) {
@@ -34,16 +31,12 @@ BinanceWebsocket::BinanceWebsocket(QObject* parent) : QObject(parent) {
 }
 
 void BinanceWebsocket::connectToBinance(const QStringList& symbols) {
-    // pl. ["BTCUSDT","ETHUSDT"] -> "btcusdt@ticker/ethusdt@ticker"
+    // ["BTCUSDT","ETHUSDT"] -> "btcusdt@ticker/ethusdt@ticker"
     QStringList streams;
-    for (const auto& s : symbols) {
-        streams << (s.toLower() + "@ticker");
-    }
+    for (const auto& s : symbols) streams << (s.toLower() + "@ticker");
     const QString streamJoined = streams.join('/');
 
     const QString url = "wss://stream.binance.com:9443/stream?streams=" + streamJoined;
-
-    // ix::WebSocket::setUrl std::string-et vár
-    webSocket.setUrl(qstr(url));
+    webSocket.setUrl(qstr(url));  // ix::WebSocket std::string-et vár
     webSocket.start();
 }
