@@ -2,10 +2,12 @@ set_project("unknown")
 set_languages("cxx20")
 add_rules("mode.debug", "mode.release")
 
+-- Xmake maga tölti le a csomagokat
 add_requires("qt 6.9.2", {configs = {widgets = true}})
 add_requires("nlohmann_json")
 
 target("unknown")
+    -- Qt widget app: moc/uic/qrc automatikus
     add_rules("qt.widgetapp")
     set_kind("binary")
     add_files("src/**.cpp", "ui/**.ui", "resources/**.qrc")
