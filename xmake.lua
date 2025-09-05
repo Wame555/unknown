@@ -2,6 +2,9 @@ set_project("unknown")
 set_languages("cxx20")
 add_rules("mode.debug", "mode.release")
 
+-- új:
+add_requires("zlib")
+
 -- IXWebSocket TLS mbedTLS-szel (nincs OpenSSL-szívás)
 add_requires("ixwebsocket", {configs = {ssl = "mbedtls"}})
 
