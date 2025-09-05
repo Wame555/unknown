@@ -1,12 +1,14 @@
 #pragma once
 #include <QObject>
+#include <QString>
+#include <QStringList>
 #include <ixwebsocket/IXWebSocket.h>
 
 class BinanceWebsocket : public QObject {
     Q_OBJECT
 public:
     explicit BinanceWebsocket(QObject* parent = nullptr);
-    void connectToBinance(const QStringList& symbols);
+    Q_INVOKABLE void connectToBinance(const QStringList& symbols);
 
 signals:
     void priceUpdated(const QString& symbol, double price);
@@ -14,4 +16,3 @@ signals:
 private:
     ix::WebSocket webSocket;
 };
-
