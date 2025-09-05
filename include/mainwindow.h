@@ -1,29 +1,21 @@
 #pragma once
 #include <QMainWindow>
-#include <QTableWidget>
-#include <QTextEdit>
+#include "configmanager.h"
 #include "demoaccount.h"
 #include "binancewebsocket.h"
-#include "telegramnotifier.h"
-#include "configmanager.h"
+
+class QLineEdit;
+class QPushButton;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
-    MainWindow(QWidget* parent = nullptr);
-
-private slots:
-    void updatePrice(const QString& symbol, double price);
-    void onAddPositionClicked();
-    void onClosePositionClicked();
+    explicit MainWindow(QWidget* parent = nullptr);
 
 private:
-    QTableWidget* priceTable;
-    QTableWidget* positionsTable;
-    QTextEdit* debugConsole;
-    DemoAccount* demoAccount;
-    BinanceWebsocket* websocket;
-    TelegramNotifier* telegramNotifier;
-    ConfigManager* configManager;
-    void setupUI();
+    void buildUi();
+
+    ConfigManager     cfg_;   // default ctor
+    DemoAccount       demo_;
+    BinanceWebsocket  ws_;
 };
