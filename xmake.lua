@@ -12,14 +12,14 @@ target("unknown")
     add_rules("qt.widgetapp")           -- kezeli uic\rcc-t is
 
     add_includedirs("include")
-    add_headerfiles("include\**.h")
-    add_files("src\**.cpp")
+    add_headerfiles("include/**.h")
+    add_files("src/**.cpp")
 
     if os.isdir("ui") then
         add_files("ui\**.ui")
     end
     if os.isdir("resources") then
-        add_files("resources\**.qrc")
+        add_files("resources/**.qrc")
     end
 
     -- FONTOS: minden Q_OBJECT-es headerre fusson MOC
